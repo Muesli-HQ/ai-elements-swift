@@ -38,7 +38,7 @@ public struct AIReasoning: View {
     public var body: some View {
         DisclosureGroup(isExpanded: $isExpanded) {
             if !summary.isEmpty {
-                Text(verbatim: summary).font(.system(size: 12))
+                AIResponse(summary, inlineContent: Self.summaryInlineContent).font(.system(size: 12))
                     .foregroundStyle(theme.muted)
                     .textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
@@ -71,6 +71,13 @@ public struct AIReasoning: View {
         .padding(12)
         .background(theme.surface, in: RoundedRectangle(cornerRadius: 10))
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.border, lineWidth: 1))
+    }
+
+    // Reasoning is explanatory content, not a source of executable links/actions.
+    static func summaryInlineContent(_ markdown: String) -> AttributedString {
+        var result = (try? AttributedString(markdown: markdown, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? AttributedString(markdown)
+        for run in Array(result.runs) where run.link != nil { result[run.range].link = nil }
+        return result
     }
 
     static func durationLabel(_ seconds: TimeInterval?) -> String? {

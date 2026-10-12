@@ -2,6 +2,13 @@ import XCTest
 @testable import AIElementsSwift
 
 final class ReasoningDurationTests: XCTestCase {
+    func testSummaryMarkdownRendersEmphasisWithoutActivatingLinks() {
+        let text = AIReasoning.summaryInlineContent("**Searching action items** and [reference](https://example.com)")
+        XCTAssertEqual(String(text.characters), "Searching action items and reference")
+        XCTAssertTrue(text.runs.contains { $0.inlinePresentationIntent?.contains(.stronglyEmphasized) == true })
+        XCTAssertTrue(text.runs.allSatisfy { $0.link == nil })
+    }
+
     func testMissingOrInvalidHostDurationIsNotDisplayed() {
         XCTAssertNil(AIReasoning.durationLabel(nil))
         XCTAssertNil(AIReasoning.durationLabel(-1))
