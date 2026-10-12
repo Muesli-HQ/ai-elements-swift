@@ -1,137 +1,176 @@
 # AI Elements Swift
 
-Native SwiftUI chat components maintained with Muesli. This is an independent adaptation of [Vercel AI Elements](https://github.com/vercel/ai-elements), with [Lucide](https://lucide.dev) vector icons. It is not an official Vercel product or a complete API-compatible port.
+Native SwiftUI components for AI chat interfaces, maintained by [Muesli-HQ](https://github.com/Muesli-HQ). Build conversations with Markdown answers, reasoning summaries, tool activity, model selection, attachments, and source previews.
 
-The package has no Muesli, AI SDK, React, provider, database, or third-party package dependencies. It targets macOS 14.2 and iOS 17. macOS is the currently validated platform; iOS is declared but not yet device-tested.
+The library adapts component patterns from [Vercel AI Elements](https://github.com/vercel/ai-elements) and renders [Lucide](https://lucide.dev) artwork as SwiftUI vectors. It is an independent community project, with no affiliation with Vercel.
 
-## Use
+- **Native UI:** SwiftUI views with no web view or JavaScript runtime.
+- **No package dependencies:** bring your own model provider, networking, and persistence.
+- **47 Lucide icons:** verified coverage of the upstream Chatbot component scope described below.
+- **macOS 14.2+ and iOS 17+:** macOS is tested; iOS support is declared but has not been device-tested.
 
-Add the package to your app:
+## Install
+
+Add the repository in Xcode under **File → Add Package Dependencies**, or use Swift Package Manager:
 
 ```swift
-.package(url: "https://github.com/Muesli-HQ/ai-elements-swift.git", from: "0.3.0")
+.package(
+    url: "https://github.com/Muesli-HQ/ai-elements-swift.git",
+    from: "0.3.0"
+)
 ```
 
-Add `.product(name: "AIElementsSwift", package: "AIElementsSwift")` to the consuming target, then:
+Add the product to your target:
 
 ```swift
-import AIElementsSwift
-import SwiftUI
+.product(name: "AIElementsSwift", package: "ai-elements-swift")
+```
 
-struct Answer: View {
+The examples below use the public API available in 0.3.0. This README describes the current `main` branch, which also includes the compact reasoning-header and tool-icon refinements made after that tag.
+
+## Build an answer
+
+```swift
+import SwiftUI
+import AIElementsSwift
+
+struct AssistantAnswer: View {
+    let markdown: String
+    let reasoningSummary: String
+
     var body: some View {
         AIMessage(role: .assistant) {
-            Text("Here are the next steps from your conversation.")
-            AIDisclosure(title: "Meeting research", icon: .search) {
-                AIActivityRow(title: "Read transcript", detail: "2 relevant passages", state: .completed)
-            }
-            AISourcePassage(number: 1, metadata: "Transcript · 10:42",
-                            preview: "We agreed to review the proposal next week.") {
-                // Open the exact source in your app.
+            VStack(alignment: .leading, spacing: 16) {
+                if !reasoningSummary.isEmpty {
+                    AIReasoning(
+                        summary: reasoningSummary,
+                        state: .completed
+                    )
+                }
+
+                AIResponse(markdown)
+
+                AISourcePassage(
+                    number: 1,
+                    metadata: "Transcript · 10:42",
+                    preview: "We agreed to review the proposal next week."
+                ) {
+                    // Navigate to the source in your app.
+                }
             }
         }
     }
 }
 ```
 
-Use `AIPromptInput` to compose your own header, native editor, and footer. The library does not take ownership of keyboard handling, model settings, networking, source validation, or persistence. `AIAttachment` reports removal through a callback. `AIIcon` draws pinned Lucide geometry directly with SwiftUI paths, with no web view or runtime asset fetch.
+Your app supplies the content and state. Components do not call a model, retrieve documents, validate citations, or store conversations.
 
-## Available components
+## Components
 
-- `AIMessage`: role-aware layout and user bubble.
-- `AIPromptInput`: compact, composable focused input surface.
-- `AIAttachment`: removable context chip.
-- `AIDisclosure`: keyboard-accessible expandable content.
-- `AIActivityRow`: pending, running, completed, and failed operations.
-- `AISourcePassage`: numbered source preview and activation.
-- `AIElementsTheme`: environment-based color customization.
-- `AIIcon`: selected Lucide vector artwork.
-- `AIModelSelector` / `AIThinkingSlider`: model choices and discrete supported thinking levels.
-- `AIResponse` / `AIMarkdownBlock`: native Markdown with headings, lists, quotes, code and tables.
-- `AITool`: collapsible tool input/output/error cards with explicit execution states.
-- `AIReasoning`: compact brain-icon disclosure for supplied reasoning summaries; one shimmering status while active, no completion subtitle or enclosing card.
-- `AIShimmer`: animated thinking/status text, static with Reduce Motion.
-
-The host supplies provider-visible reasoning summaries to a disclosure, and actual tool events to activity rows. Placeholder status copy is not a reasoning trace. These components do not fabricate provider activity. Model selection policy, mention autocomplete, citation validation, and source grouping remain application responsibilities. Markdown layout and model/effort controls are reusable; the host supplies allowed choices and validates changes. Reasoning request state is host-provided; Muesli marks it complete when its provider request finishes, not at an inferred internal reasoning boundary.
-
-## Icon coverage
-
-The package includes **47 Lucide icons**. A source audit verifies **all 33 distinct Lucide icons** imported by the **19 components in Vercel’s Chatbot category**, including their recursively imported in-repository component dependencies (**40 source files**). This adds 24 icons to the original 23; 14 existing Muesli-oriented icons are outside that audited set.
-
-Audited AI Elements revision: [`6a9d5b1822ffb10bba4bd97175f01edd7d8651cd`](https://github.com/vercel/ai-elements/tree/6a9d5b1822ffb10bba4bd97175f01edd7d8651cd/packages/elements/src). Lucide SVG revision: [`70562c1ee1c4fdcf736fe97bc893fb8511927934`](https://github.com/lucide-icons/lucide/tree/70562c1ee1c4fdcf736fe97bc893fb8511927934/icons).
-
-**Component scope:** `attachments`, `chain-of-thought`, `checkpoint`, `confirmation`, `context`, `conversation`, `inline-citation`, `message`, `model-selector`, `plan`, `prompt-input`, `question`, `queue`, `reasoning`, `shimmer`, `sources`, `suggestion`, `task`, `tool`. Dependencies include `code-block` and the imported shadcn UI primitives, so selector/search, spinner, dropdown and carousel icons are covered too.
-
-This is complete **Lucide import coverage for that pinned scope**, not full component parity or the complete Lucide/AI Elements catalog. External npm internals (such as Streamdown), docs/examples, consumer-supplied icons, custom inline SVGs (such as the context usage ring), and other component categories are excluded. In particular, feedback icons supplied by application examples are not claimed as audited component defaults. See [PORTING.md](PORTING.md) for component behavior still to port.
-
-[The machine-readable audit](Upstream/chat-icon-coverage.json) records every inspected source file, exact import, canonical SVG, Swift case, and SVG SHA-256. The following mappings are verified against source, including Lucide aliases:
-
-| Upstream Lucide import | Canonical SVG | `AIIconName` |
+| Area | Components | What they provide |
 | --- | --- | --- |
-| `ArrowDownIcon` | `arrow-down` | `.arrowDown` |
-| `ArrowLeft` | `arrow-left` | `.arrowLeft` |
-| `ArrowLeftIcon` | `arrow-left` | `.arrowLeft` |
-| `ArrowRight` | `arrow-right` | `.arrowRight` |
-| `ArrowRightIcon` | `arrow-right` | `.arrowRight` |
-| `BookIcon` | `book` | `.book` |
-| `BookmarkIcon` | `bookmark` | `.bookmark` |
-| `BrainIcon` | `brain` | `.brain` |
-| `CheckCircleIcon` | `circle-check-big` | `.circleCheckBig` |
-| `CheckIcon` | `check` | `.check` |
-| `ChevronDownIcon` | `chevron-down` | `.chevronDown` |
-| `ChevronLeftIcon` | `chevron-left` | `.chevronLeft` |
-| `ChevronRightIcon` | `chevron-right` | `.chevronRight` |
-| `ChevronUpIcon` | `chevron-up` | `.chevronUp` |
-| `ChevronsUpDownIcon` | `chevrons-up-down` | `.chevronsUpDown` |
-| `CircleIcon` | `circle` | `.circle` |
-| `ClockIcon` | `clock` | `.clock` |
-| `CopyIcon` | `copy` | `.copy` |
-| `CornerDownLeftIcon` | `corner-down-left` | `.cornerDownLeft` |
-| `DotIcon` | `dot` | `.dot` |
-| `DownloadIcon` | `download` | `.download` |
-| `FileTextIcon` | `file-text` | `.fileText` |
-| `GlobeIcon` | `globe` | `.globe` |
-| `ImageIcon` | `image` | `.image` |
-| `Loader2Icon` | `loader-circle` | `.loaderCircle` |
-| `Monitor` | `monitor` | `.monitor` |
-| `Music2Icon` | `music-2` | `.music2` |
-| `PaperclipIcon` | `paperclip` | `.paperclip` |
-| `PlusIcon` | `plus` | `.plus` |
-| `SearchIcon` | `search` | `.search` |
-| `SquareIcon` | `square` | `.square` |
-| `VideoIcon` | `video` | `.video` |
-| `WrenchIcon` | `wrench` | `.wrench` |
-| `XCircleIcon` | `circle-x` | `.circleX` |
-| `XIcon` | `x` | `.x` |
+| Messages | `AIMessage` | Role-aware layout and user-message bubbles |
+| Responses | `AIResponse`, `AIMarkdownBlock` | Native Markdown layout: headings, lists, tasks, quotes, code fences, and tables |
+| Composer | `AIPromptInput`, `AIAttachment` | Input surface with header/editor/footer slots and removable context chips |
+| Model controls | `AIModelSelector`, `AIThinkingSlider` | Model choices and discrete supported thinking levels |
+| Reasoning | `AIReasoning`, `AIShimmer` | Expandable provider summaries and animated status text |
+| Tools | `AITool`, `AIActivityRow` | Input/output/error disclosures and explicit execution states |
+| Sources | `AISourcePassage`, `AIDisclosure` | Passage previews and expandable content |
+| Styling | `AIElementsTheme`, `AIIcon` | Environment-based colors and native Lucide vectors |
 
-Additional existing cases: `.archive`, `.arrowUpRight`, `.arrowUp`, `.atSign`, `.bookOpen`, `.circleAlert`, `.cpu`, `.ellipsis`, `.loader`, `.panelLeft`, `.rotateCcw`, `.slidersHorizontal`, `.squarePen`, `.trash`.
+`AIPromptInput` accepts your own editor; keyboard shortcuts, sending, uploads, and mention autocomplete remain under your control. Model controls use host-supplied choices and callbacks so your app can enforce provider capabilities and save preferences.
+
+`AIReasoning` displays only the provider-visible summary you supply. It does not generate or extract reasoning. Pass actual request state and, optionally, a measured duration; no duration is invented. Tool cards similarly display real execution events supplied by the host. Shimmer becomes static when Reduce Motion is enabled.
+
+Markdown support is intentionally bounded: no full CommonMark parity, syntax highlighting, or math layout. Reasoning summaries render Markdown without active links. See [PORTING.md](PORTING.md) for component coverage and remaining work.
+
+## Icons and verified coverage
+
+There are **47 icons in `AIIconName`**. They include **all 33 distinct Lucide icons imported by 19 upstream Chatbot components and their recursive local component dependencies**, covering **40 source files**. The other 14 icons support additional Muesli UI.
+
+The audit covers these components:
+
+`attachments`, `chain-of-thought`, `checkpoint`, `confirmation`, `context`, `conversation`, `inline-citation`, `message`, `model-selector`, `plan`, `prompt-input`, `question`, `queue`, `reasoning`, `shimmer`, `sources`, `suggestion`, `task`, and `tool`.
+
+Local dependencies include `code-block` and imported shadcn UI primitives. The audit excludes external npm package internals, documentation examples, consumer-supplied icons, custom inline SVGs, and other component categories. Complete icon coverage for this scope does **not** mean every component has been ported.
+
+| Source | Pinned revision |
+| --- | --- |
+| [Vercel AI Elements](https://github.com/vercel/ai-elements/tree/6a9d5b1822ffb10bba4bd97175f01edd7d8651cd) | `6a9d5b1822ffb10bba4bd97175f01edd7d8651cd` |
+| [Lucide](https://github.com/lucide-icons/lucide/tree/70562c1ee1c4fdcf736fe97bc893fb8511927934) | `70562c1ee1c4fdcf736fe97bc893fb8511927934` |
+
+The [audit manifest](Upstream/chat-icon-coverage.json) records inspected files, upstream import names, canonical SVG names, Swift cases, and SVG SHA-256 hashes. Aliases are resolved explicitly—for example, `CheckCircleIcon` → `.circleCheckBig`, `Loader2Icon` → `.loaderCircle`, and `XCircleIcon` → `.circleX`.
+
+### Use an icon
 
 ```swift
-AIIcon(.search, size: 18)
-    .foregroundStyle(.secondary)
+Button {
+    // Start a search.
+} label: {
+    AIIcon(.search, size: 18)
+        .foregroundStyle(.secondary)
+}
+.accessibilityLabel("Search")
 ```
 
-Icons inherit the foreground style and scale from a 24-point design grid. They are decorative for accessibility; give the enclosing button or control an accessible label. They do not require SF Symbols, a web view, or network access. `AIShimmer` supplies animated thinking text separately from the `loader` artwork.
+Icons inherit foreground styling and scale from a 24-point grid. They are decorative to accessibility; label the enclosing control. Artwork is bundled as generated paths, with no runtime asset downloads or SF Symbols dependency.
 
-The checked-in SVGs live in [Upstream/Lucide](Upstream/Lucide), with generated paths in [AIIcon.swift](Sources/AIElementsSwift/AIIcon.swift). To expand coverage, add licensed SVGs from the pinned Lucide revision, run `python3 Scripts/generate_icons.py`, and run `swift test`. To reproduce the source audit with local checkouts at the pinned revisions, run `python3 Scripts/audit_chat_icons.py /path/to/ai-elements /path/to/lucide`, then regenerate and test. The audit copies missing SVGs and fails if a known SVG differs from upstream. Unsupported SVG artwork fails generation rather than being silently approximated. Retain the Lucide/Feather notices when redistributing the icons.
+### Available cases
 
-## Development
+| | | |
+| --- | --- | --- |
+| `archive` | `arrowDown` | `arrowLeft` |
+| `arrowRight` | `arrowUp` | `arrowUpRight` |
+| `atSign` | `book` | `bookOpen` |
+| `bookmark` | `brain` | `check` |
+| `chevronDown` | `chevronLeft` | `chevronRight` |
+| `chevronUp` | `chevronsUpDown` | `circle` |
+| `circleAlert` | `circleCheckBig` | `circleX` |
+| `clock` | `copy` | `cornerDownLeft` |
+| `cpu` | `dot` | `download` |
+| `ellipsis` | `fileText` | `globe` |
+| `image` | `loader` | `loaderCircle` |
+| `monitor` | `music2` | `panelLeft` |
+| `paperclip` | `plus` | `rotateCcw` |
+| `search` | `slidersHorizontal` | `square` |
+| `squarePen` | `trash` | `video` |
+| `wrench` | `x` | |
+
+## Develop and contribute
+
+Open the package in Xcode to explore `AIElementsShowcase` previews, or run:
 
 ```sh
 swift build
 swift test
-python3 Scripts/generate_icons.py
 ```
 
-Open the package in Xcode to explore its SwiftUI previews. Regenerate icons after changing the checked-in SVG subset. The generator accepts only supported SVG commands and fails on unsupported artwork; paths are not fetched at build time.
+To add icons, place SVGs from the pinned Lucide revision in `Upstream/Lucide`, then regenerate and test:
 
-The standalone repository is [Muesli-HQ/ai-elements-swift](https://github.com/Muesli-HQ/ai-elements-swift). Muesli currently consumes a local copy during integration. See [PORTING.md](PORTING.md) for exact coverage and remaining work.
+```sh
+python3 Scripts/generate_icons.py
+swift test
+```
 
-## Attribution and license
+The generator fails on unsupported SVG elements or commands. Keep upstream notices intact and avoid manually editing generated paths.
 
-Swift adaptations are distributed under Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+To reproduce the source audit, use local checkouts at the pinned revisions:
 
-- Component composition and interaction concepts: **Vercel AI Elements**, copyright 2023 Vercel, Inc., Apache-2.0; reference revision `6a9d5b1822ffb10bba4bd97175f01edd7d8651cd`.
-- Icon artwork: **Lucide Icons and Contributors**, ISC, including Feather-derived icons under MIT, copyright Cole Bemis. SVGs pinned to `70562c1ee1c4fdcf736fe97bc893fb8511927934` and mechanically converted to SwiftUI paths. Full notices are retained in `Licenses/Lucide-LICENSE`.
+```sh
+python3 Scripts/audit_chat_icons.py /path/to/ai-elements /path/to/lucide
+python3 Scripts/generate_icons.py
+swift test
+```
 
-Upstream source and documentation: [Messages](https://elements.ai-sdk.dev/components/message), [Prompt Input](https://elements.ai-sdk.dev/components/prompt-input), [Tool](https://elements.ai-sdk.dev/components/tool), [Reasoning](https://elements.ai-sdk.dev/components/reasoning).
+The audit updates the manifest, copies missing SVGs, and rejects existing SVGs that differ from upstream. Tests check icon geometry, audited icon availability, Markdown behavior, thinking-level selection, and reasoning-summary formatting.
+
+Contributions should keep provider and application policy outside the UI package. For new components, document supported upstream behavior and any intentional differences, and check keyboard access and Reduce Motion behavior where applicable.
+
+## Credits and licenses
+
+Swift adaptations are licensed under [Apache-2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
+
+- **Vercel AI Elements** supplies the original component patterns and interaction reference. Copyright 2023 Vercel, Inc.; [Apache-2.0 license](Licenses/AI-Elements-LICENSE).
+- **Lucide Icons and Contributors** supply the icon artwork under ISC, including Feather-derived artwork under MIT, copyright Cole Bemis. See the complete [Lucide/Feather notices](Licenses/Lucide-LICENSE).
+
+Notices are also bundled in the package resources. This project is a SwiftUI adaptation with partial upstream behavior coverage, not an official Vercel release or an API-compatible replacement for the TypeScript library.
