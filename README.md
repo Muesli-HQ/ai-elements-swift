@@ -9,7 +9,7 @@ The package has no Muesli, AI SDK, React, provider, database, or third-party pac
 Add the package to your app:
 
 ```swift
-.package(url: "https://github.com/Muesli-HQ/ai-elements-swift.git", from: "0.2.1")
+.package(url: "https://github.com/Muesli-HQ/ai-elements-swift.git", from: "0.3.0")
 ```
 
 Add `.product(name: "AIElementsSwift", package: "AIElementsSwift")` to the consuming target, then:
@@ -56,20 +56,55 @@ The host supplies provider-visible reasoning summaries to a disclosure, and actu
 
 ## Icon coverage
 
-The package currently includes **23 Lucide icons**, rendered as native SwiftUI vectors. This is a curated subset for the current chat components, **not the complete Lucide catalog or every icon used across Vercel AI Elements**. Additional upstream components may need additional icons.
+The package includes **47 Lucide icons**. A source audit verifies **all 33 distinct Lucide icons** imported by the **19 components in Vercel’s Chatbot category**, including their recursively imported in-repository component dependencies (**40 source files**). This adds 24 icons to the original 23; 14 existing Muesli-oriented icons are outside that audited set.
 
-Available `AIIconName` cases:
+Audited AI Elements revision: [`6a9d5b1822ffb10bba4bd97175f01edd7d8651cd`](https://github.com/vercel/ai-elements/tree/6a9d5b1822ffb10bba4bd97175f01edd7d8651cd/packages/elements/src). Lucide SVG revision: [`70562c1ee1c4fdcf736fe97bc893fb8511927934`](https://github.com/lucide-icons/lucide/tree/70562c1ee1c4fdcf736fe97bc893fb8511927934/icons).
 
-| | | |
+**Component scope:** `attachments`, `chain-of-thought`, `checkpoint`, `confirmation`, `context`, `conversation`, `inline-citation`, `message`, `model-selector`, `plan`, `prompt-input`, `question`, `queue`, `reasoning`, `shimmer`, `sources`, `suggestion`, `task`, `tool`. Dependencies include `code-block` and the imported shadcn UI primitives, so selector/search, spinner, dropdown and carousel icons are covered too.
+
+This is complete **Lucide import coverage for that pinned scope**, not full component parity or the complete Lucide/AI Elements catalog. External npm internals (such as Streamdown), docs/examples, consumer-supplied icons, custom inline SVGs (such as the context usage ring), and other component categories are excluded. In particular, feedback icons supplied by application examples are not claimed as audited component defaults. See [PORTING.md](PORTING.md) for component behavior still to port.
+
+[The machine-readable audit](Upstream/chat-icon-coverage.json) records every inspected source file, exact import, canonical SVG, Swift case, and SVG SHA-256. The following mappings are verified against source, including Lucide aliases:
+
+| Upstream Lucide import | Canonical SVG | `AIIconName` |
 | --- | --- | --- |
-| `archive` | `arrowUpRight` | `arrowUp` |
-| `atSign` | `bookOpen` | `check` |
-| `chevronDown` | `circleAlert` | `copy` |
-| `cpu` | `download` | `ellipsis` |
-| `fileText` | `loader` | `panelLeft` |
-| `plus` | `rotateCcw` | `search` |
-| `slidersHorizontal` | `squarePen` | `square` |
-| `trash` | `x` | |
+| `ArrowDownIcon` | `arrow-down` | `.arrowDown` |
+| `ArrowLeft` | `arrow-left` | `.arrowLeft` |
+| `ArrowLeftIcon` | `arrow-left` | `.arrowLeft` |
+| `ArrowRight` | `arrow-right` | `.arrowRight` |
+| `ArrowRightIcon` | `arrow-right` | `.arrowRight` |
+| `BookIcon` | `book` | `.book` |
+| `BookmarkIcon` | `bookmark` | `.bookmark` |
+| `BrainIcon` | `brain` | `.brain` |
+| `CheckCircleIcon` | `circle-check-big` | `.circleCheckBig` |
+| `CheckIcon` | `check` | `.check` |
+| `ChevronDownIcon` | `chevron-down` | `.chevronDown` |
+| `ChevronLeftIcon` | `chevron-left` | `.chevronLeft` |
+| `ChevronRightIcon` | `chevron-right` | `.chevronRight` |
+| `ChevronUpIcon` | `chevron-up` | `.chevronUp` |
+| `ChevronsUpDownIcon` | `chevrons-up-down` | `.chevronsUpDown` |
+| `CircleIcon` | `circle` | `.circle` |
+| `ClockIcon` | `clock` | `.clock` |
+| `CopyIcon` | `copy` | `.copy` |
+| `CornerDownLeftIcon` | `corner-down-left` | `.cornerDownLeft` |
+| `DotIcon` | `dot` | `.dot` |
+| `DownloadIcon` | `download` | `.download` |
+| `FileTextIcon` | `file-text` | `.fileText` |
+| `GlobeIcon` | `globe` | `.globe` |
+| `ImageIcon` | `image` | `.image` |
+| `Loader2Icon` | `loader-circle` | `.loaderCircle` |
+| `Monitor` | `monitor` | `.monitor` |
+| `Music2Icon` | `music-2` | `.music2` |
+| `PaperclipIcon` | `paperclip` | `.paperclip` |
+| `PlusIcon` | `plus` | `.plus` |
+| `SearchIcon` | `search` | `.search` |
+| `SquareIcon` | `square` | `.square` |
+| `VideoIcon` | `video` | `.video` |
+| `WrenchIcon` | `wrench` | `.wrench` |
+| `XCircleIcon` | `circle-x` | `.circleX` |
+| `XIcon` | `x` | `.x` |
+
+Additional existing cases: `.archive`, `.arrowUpRight`, `.arrowUp`, `.atSign`, `.bookOpen`, `.circleAlert`, `.cpu`, `.ellipsis`, `.loader`, `.panelLeft`, `.rotateCcw`, `.slidersHorizontal`, `.squarePen`, `.trash`.
 
 ```swift
 AIIcon(.search, size: 18)
@@ -78,7 +113,7 @@ AIIcon(.search, size: 18)
 
 Icons inherit the foreground style and scale from a 24-point design grid. They are decorative for accessibility; give the enclosing button or control an accessible label. They do not require SF Symbols, a web view, or network access. `AIShimmer` supplies animated thinking text separately from the `loader` artwork.
 
-The checked-in SVGs live in [Upstream/Lucide](Upstream/Lucide), with generated paths in [AIIcon.swift](Sources/AIElementsSwift/AIIcon.swift). To expand coverage, add licensed SVGs from the pinned Lucide revision, run `python3 Scripts/generate_icons.py`, and run `swift test`. Unsupported SVG artwork fails generation rather than being silently approximated. Retain the Lucide/Feather notices when redistributing the icons.
+The checked-in SVGs live in [Upstream/Lucide](Upstream/Lucide), with generated paths in [AIIcon.swift](Sources/AIElementsSwift/AIIcon.swift). To expand coverage, add licensed SVGs from the pinned Lucide revision, run `python3 Scripts/generate_icons.py`, and run `swift test`. To reproduce the source audit with local checkouts at the pinned revisions, run `python3 Scripts/audit_chat_icons.py /path/to/ai-elements /path/to/lucide`, then regenerate and test. The audit copies missing SVGs and fails if a known SVG differs from upstream. Unsupported SVG artwork fails generation rather than being silently approximated. Retain the Lucide/Feather notices when redistributing the icons.
 
 ## Development
 
