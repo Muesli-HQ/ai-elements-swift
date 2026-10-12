@@ -40,3 +40,19 @@ import SwiftUI
     }.frame(width: 560, height: 620)
 }
 #endif
+
+#if DEBUG
+#Preview("Core chat states") {
+    ScrollView {
+        VStack(alignment: .leading, spacing: 18) {
+            AIShimmer("Thinking…")
+            AIModelSelector(choices: [.init(id: "fast", title: "Fast model"), .init(id: "deep", title: "Reasoning model")], selectedID: "deep", onSelect: { _ in })
+            AIThinkingSlider(choices: [.init(id: "low", title: "Low"), .init(id: "medium", title: "Medium"), .init(id: "high", title: "High")], selectedID: "medium", onSelect: { _ in })
+            AIResponse("## Next steps\n- Review the proposal\n\n| Task | Owner |\n| --- | --- |\n| Review | Alex |")
+            AITool(title: "Search meetings", state: .completed, input: "launch plan", output: "2 passages returned", initiallyExpanded: true)
+            AITool(title: "Read source", state: .failed, error: "Source is no longer available", initiallyExpanded: true)
+            AIReasoning(summary: "Comparing the supplied passages before answering.", state: .streaming, initiallyExpanded: true)
+        }.padding(24)
+    }.frame(width: 520, height: 720)
+}
+#endif

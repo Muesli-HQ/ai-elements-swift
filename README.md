@@ -9,7 +9,7 @@ The package has no Muesli, AI SDK, React, provider, database, or third-party pac
 Add the package to your app:
 
 ```swift
-.package(url: "https://github.com/Muesli-HQ/ai-elements-swift.git", from: "0.1.0")
+.package(url: "https://github.com/Muesli-HQ/ai-elements-swift.git", from: "0.2.0")
 ```
 
 Add `.product(name: "AIElementsSwift", package: "AIElementsSwift")` to the consuming target, then:
@@ -46,8 +46,13 @@ Use `AIPromptInput` to compose your own header, native editor, and footer. The l
 - `AISourcePassage`: numbered source preview and activation.
 - `AIElementsTheme`: environment-based color customization.
 - `AIIcon`: selected Lucide vector artwork.
+- `AIModelSelector` / `AIThinkingSlider`: model choices and discrete supported thinking levels.
+- `AIResponse` / `AIMarkdownBlock`: native Markdown with headings, lists, quotes, code and tables.
+- `AITool`: collapsible tool input/output/error cards with explicit execution states.
+- `AIReasoning`: supplied reasoning summary content and request state.
+- `AIShimmer`: animated thinking/status text, static with Reduce Motion.
 
-The host supplies provider-visible reasoning summaries to a disclosure, and actual tool events to activity rows. Placeholder status copy is not a reasoning trace. These components do not fabricate provider activity. Markdown rendering, model selection policy, mention autocomplete, and source grouping remain application responsibilities in this first version.
+The host supplies provider-visible reasoning summaries to a disclosure, and actual tool events to activity rows. Placeholder status copy is not a reasoning trace. These components do not fabricate provider activity. Model selection policy, mention autocomplete, citation validation, and source grouping remain application responsibilities. Markdown layout and model/effort controls are reusable; the host supplies allowed choices and validates changes. Reasoning request state is host-provided; Muesli marks it complete when its provider request finishes, not at an inferred internal reasoning boundary.
 
 ## Development
 
