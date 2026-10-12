@@ -9,7 +9,7 @@ The package has no Muesli, AI SDK, React, provider, database, or third-party pac
 Add the package to your app:
 
 ```swift
-.package(url: "https://github.com/Muesli-HQ/ai-elements-swift.git", from: "0.2.0")
+.package(url: "https://github.com/Muesli-HQ/ai-elements-swift.git", from: "0.2.1")
 ```
 
 Add `.product(name: "AIElementsSwift", package: "AIElementsSwift")` to the consuming target, then:
@@ -36,7 +36,7 @@ struct Answer: View {
 
 Use `AIPromptInput` to compose your own header, native editor, and footer. The library does not take ownership of keyboard handling, model settings, networking, source validation, or persistence. `AIAttachment` reports removal through a callback. `AIIcon` draws pinned Lucide geometry directly with SwiftUI paths, with no web view or runtime asset fetch.
 
-## Initial components
+## Available components
 
 - `AIMessage`: role-aware layout and user bubble.
 - `AIPromptInput`: compact, composable focused input surface.
@@ -53,6 +53,32 @@ Use `AIPromptInput` to compose your own header, native editor, and footer. The l
 - `AIShimmer`: animated thinking/status text, static with Reduce Motion.
 
 The host supplies provider-visible reasoning summaries to a disclosure, and actual tool events to activity rows. Placeholder status copy is not a reasoning trace. These components do not fabricate provider activity. Model selection policy, mention autocomplete, citation validation, and source grouping remain application responsibilities. Markdown layout and model/effort controls are reusable; the host supplies allowed choices and validates changes. Reasoning request state is host-provided; Muesli marks it complete when its provider request finishes, not at an inferred internal reasoning boundary.
+
+## Icon coverage
+
+The package currently includes **23 Lucide icons**, rendered as native SwiftUI vectors. This is a curated subset for the current chat components, **not the complete Lucide catalog or every icon used across Vercel AI Elements**. Additional upstream components may need additional icons.
+
+Available `AIIconName` cases:
+
+| | | |
+| --- | --- | --- |
+| `archive` | `arrowUpRight` | `arrowUp` |
+| `atSign` | `bookOpen` | `check` |
+| `chevronDown` | `circleAlert` | `copy` |
+| `cpu` | `download` | `ellipsis` |
+| `fileText` | `loader` | `panelLeft` |
+| `plus` | `rotateCcw` | `search` |
+| `slidersHorizontal` | `squarePen` | `square` |
+| `trash` | `x` | |
+
+```swift
+AIIcon(.search, size: 18)
+    .foregroundStyle(.secondary)
+```
+
+Icons inherit the foreground style and scale from a 24-point design grid. They are decorative for accessibility; give the enclosing button or control an accessible label. They do not require SF Symbols, a web view, or network access. `AIShimmer` supplies animated thinking text separately from the `loader` artwork.
+
+The checked-in SVGs live in [Upstream/Lucide](Upstream/Lucide), with generated paths in [AIIcon.swift](Sources/AIElementsSwift/AIIcon.swift). To expand coverage, add licensed SVGs from the pinned Lucide revision, update the generator mapping, run `python3 Scripts/generate_icons.py`, and run `swift test`. Unsupported SVG artwork fails generation rather than being silently approximated. Retain the Lucide/Feather notices when redistributing the icons.
 
 ## Development
 
